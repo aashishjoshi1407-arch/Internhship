@@ -1,0 +1,147 @@
+// datastructures.cpp
+// Task 1: Data Structures Implementation (C++)
+// Implements: Linked List and Stack, each with insert/delete/search
+#include <iostream>
+using namespace std;
+
+// ---------------- LINKED LIST ----------------
+class LinkedList {
+private:
+    struct Node {
+        int data;
+        Node* next;
+    };
+    Node* head;
+
+public:
+    LinkedList() { head = nullptr; }
+
+    // Insert at the end - O(n) since we walk to the tail
+    void insert(int value) {
+        Node* newNode = new Node{value, nullptr};
+        if (head == nullptr) {
+            head = newNode;
+            return;
+        }
+        Node* temp = head;
+        while (temp->next != nullptr) temp = temp->next;
+        temp->next = newNode;
+    }
+
+    // Delete first occurrence of a value - O(n) worst case
+    void remove(int value) {
+        Node *temp = head, *prev = nullptr;
+        while (temp != nullptr && temp->data != value) {
+            prev = temp;
+            temp = temp->next;
+        }
+        if (temp == nullptr) {
+            cout << "LinkedList: " << value << " not found\n";
+            return;
+        }
+        if (prev == nullptr) head = temp->next;
+        else prev->next = temp->next;
+        delete temp;
+    }
+
+    // Search for a value - O(n) worst case, O(1) best case
+    bool search(int value) {
+        Node* temp = head;
+        while (temp != nullptr) {
+            if (temp->data == value) return true;
+            temp = temp->next;
+        }
+        return false;
+    }
+
+    void display() {
+        Node* temp = head;
+        cout << "LinkedList: ";
+        while (temp != nullptr) {
+            cout << temp->data << " -> ";
+            temp = temp->next;
+        }
+        cout << "NULL\n";
+    }
+
+    ~LinkedList() {
+        Node* temp = head;
+        while (temp != nullptr) {
+            Node* next = temp->next;
+            delete temp;
+            temp = next;
+        }
+    }
+};
+
+// ---------------- STACK (array-based) ----------------
+class Stack {
+private:
+    int arr[100];
+    int top; // index of the top element, -1 means empty
+
+public:
+    Stack() { top = -1; }
+
+    // Insert (push) - O(1)
+    void insert(int value) {
+        if (top >= 99) {
+            cout << "Stack: overflow, cannot push " << value << "\n";
+            return;
+        }
+        arr[++top] = value;
+    }
+
+    // Delete (pop) - O(1)
+    void remove() {
+        if (top < 0) {
+            cout << "Stack: underflow, nothing to pop\n";
+            return;
+        }
+        cout << "Stack: popped " << arr[top] << "\n";
+        top--;
+    }
+
+    // Search - O(n) worst case
+    bool search(int value) {
+        for (int i = 0; i <= top; i++) {
+            if (arr[i] == value) return true;
+        }
+        return false;
+    }
+
+    void display() {
+        cout << "Stack (top to bottom): ";
+        for (int i = top; i >= 0; i--) cout << arr[i] << " ";
+        cout << "\n";
+    }
+};
+
+// ---------------- DRIVER PROGRAM ----------------
+int main() {
+    cout << "=== Linked List Demo ===\n";
+    LinkedList list;
+    list.insert(10);
+    list.insert(20);
+    list.insert(30);
+    list.display();
+
+    cout << "Search 20: " << (list.search(20) ? "Found" : "Not found") << "\n";
+    list.remove(20);
+    list.display();
+    cout << "Search 20: " << (list.search(20) ? "Found" : "Not found") << "\n\n";
+
+    cout << "=== Stack Demo ===\n";
+    Stack stack;
+    stack.insert(1);
+    stack.insert(2);
+    stack.insert(3);
+    stack.display();
+
+    cout << "Search 2: " << (stack.search(2) ? "Found" : "Not found") << "\n";
+    stack.remove();
+    stack.display();
+    cout << "Search 3: " << (stack.search(3) ? "Found" : "Not found") << "\n";
+
+    return 0;
+}
