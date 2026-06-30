@@ -1,4 +1,3 @@
-// datastructures.cpp
 // Task 1: Data Structures Implementation (C++)
 // Implements: Linked List and Stack, each with insert/delete/search
 #include <iostream>
