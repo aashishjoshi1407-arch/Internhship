@@ -1,0 +1,144 @@
+// algorithms.cpp
+// Task 2: Algorithms & Problem Solving
+// Implements: Merge Sort, Binary Search, 0/1 Knapsack (DP)
+// Includes test cases and runtime measurement for different input sizes
+#include <iostream>
+#include <vector>
+#include <chrono>
+#include <cstdlib>
+using namespace std;
+using namespace std::chrono;
+
+// ---------------- 1. MERGE SORT ----------------
+// Time Complexity: O(n log n) in all cases
+// Space Complexity: O(n) for the temporary arrays
+void merge(vector<int>& arr, int left, int mid, int right) {
+    vector<int> leftArr(arr.begin() + left, arr.begin() + mid + 1);
+    vector<int> rightArr(arr.begin() + mid + 1, arr.begin() + right + 1);
+
+    int i = 0, j = 0, k = left;
+    while (i < (int)leftArr.size() && j < (int)rightArr.size()) {
+        if (leftArr[i] <= rightArr[j]) arr[k++] = leftArr[i++];
+        else arr[k++] = rightArr[j++];
+    }
+    while (i < (int)leftArr.size()) arr[k++] = leftArr[i++];
+    while (j < (int)rightArr.size()) arr[k++] = rightArr[j++];
+}
+
+void mergeSort(vector<int>& arr, int left, int right) {
+    if (left >= right) return;
+    int mid = left + (right - left) / 2;
+    mergeSort(arr, left, mid);
+    mergeSort(arr, mid + 1, right);
+    merge(arr, left, mid, right);
+}
+
+// ---------------- 2. BINARY SEARCH ----------------
+// Time Complexity: O(log n), requires a sorted array
+// Space Complexity: O(1)
+int binarySearch(const vector<int>& arr, int target) {
+    int low = 0, high = arr.size() - 1;
+    while (low <= high) {
+        int mid = low + (high - low) / 2;
+        if (arr[mid] == target) return mid;
+        else if (arr[mid] < target) low = mid + 1;
+        else high = mid - 1;
+    }
+    return -1;
+}
+
+// ---------------- 3. 0/1 KNAPSACK (Dynamic Programming) ----------------
+// Time Complexity: O(n * capacity)
+// Space Complexity: O(n * capacity) for the DP table
+int knapsack(const vector<int>& weights, const vector<int>& values, int capacity) {
+    int n = weights.size();
+    vector<vector<int>> dp(n + 1, vector<int>(capacity + 1, 0));
+
+    for (int i = 1; i <= n; i++) {
+        for (int w = 0; w <= capacity; w++) {
+            if (weights[i - 1] <= w)
+                dp[i][w] = max(dp[i - 1][w], values[i - 1] + dp[i - 1][w - weights[i - 1]]);
+            else
+                dp[i][w] = dp[i - 1][w];
+        }
+    }
+    return dp[n][capacity];
+}
+
+// ---------------- Helper: generate random array ----------------
+vector<int> generateRandomArray(int size) {
+    vector<int> arr(size);
+    for (int i = 0; i < size; i++) arr[i] = rand() % 100000;
+    return arr;
+}
+
+void printArray(const vector<int>& arr, int limit = 15) {
+    int n = min((int)arr.size(), limit);
+    for (int i = 0; i < n; i++) cout << arr[i] << " ";
+    if ((int)arr.size() > limit) cout << "...";
+    cout << "\n";
+}
+
+// ---------------- DRIVER PROGRAM ----------------
+int main() {
+    srand(42); // fixed seed for reproducible test runs
+
+    cout << "=== 1. Merge Sort Test ===\n";
+    vector<int> testArr = {38, 27, 43, 3, 9, 82, 10};
+    cout << "Before: ";
+    printArray(testArr);
+    mergeSort(testArr, 0, testArr.size() - 1);
+    cout << "After:  ";
+    printArray(testArr);
+
+    cout << "\n=== 2. Binary Search Test ===\n";
+    int target = 43;
+    int idx = binarySearch(testArr, target);
+    cout << "Searching for " << target << " in sorted array -> ";
+    if (idx != -1) cout << "Found at index " << idx << "\n";
+    else cout << "Not found\n";
+
+    target = 99; // not present
+    idx = binarySearch(testArr, target);
+    cout << "Searching for " << target << " in sorted array -> ";
+    if (idx != -1) cout << "Found at index " << idx << "\n";
+    else cout << "Not found\n";
+
+    cout << "\n=== 3. 0/1 Knapsack Test ===\n";
+    vector<int> weights = {2, 3, 4, 5};
+    vector<int> values  = {3, 4, 5, 6};
+    int capacity = 5;
+    cout << "Weights: 2 3 4 5 | Values: 3 4 5 6 | Capacity: " << capacity << "\n";
+    cout << "Maximum value achievable: " << knapsack(weights, values, capacity) << "\n";
+
+    cout << "\n=== Runtime Measurement: Merge Sort on different input sizes ===\n";
+    vector<int> sizes = {1000, 5000, 10000, 50000, 100000};
+    for (int size : sizes) {
+        vector<int> data = generateRandomArray(size);
+
+        auto start = high_resolution_clock::now();
+        mergeSort(data, 0, data.size() - 1);
+        auto end = high_resolution_clock::now();
+
+        auto duration = duration_cast<microseconds>(end - start);
+        cout << "Input size: " << size
+             << " | Time taken: " << duration.count() << " microseconds\n";
+    }
+
+    cout << "\n=== Runtime Measurement: Binary Search on different input sizes ===\n";
+    for (int size : sizes) {
+        vector<int> data = generateRandomArray(size);
+        mergeSort(data, 0, data.size() - 1); // must be sorted first
+        int searchTarget = data[size / 2];   // guaranteed to exist
+
+        auto start = high_resolution_clock::now();
+        binarySearch(data, searchTarget);
+        auto end = high_resolution_clock::now();
+
+        auto duration = duration_cast<nanoseconds>(end - start);
+        cout << "Input size: " << size
+             << " | Time taken: " << duration.count() << " nanoseconds\n";
+    }
+
+    return 0;
+}
