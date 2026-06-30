@@ -1,4 +1,3 @@
-// algorithms.cpp
 // Task 2: Algorithms & Problem Solving
 // Implements: Merge Sort, Binary Search, 0/1 Knapsack (DP)
 // Includes test cases and runtime measurement for different input sizes
